@@ -1,7 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using PieShopNew.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("PieShopDbContextConnection") ?? throw new InvalidOperationException("Connection string 'PieShopDbContextConnection' not found.");
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -19,9 +21,14 @@ builder.Services.AddDbContext<PieShopDbContext>(options =>
     options.UseSqlServer(builder.Configuration["ConnectionStrings:PieShopDbContextConnection"]);
 });
 
+builder.Services.AddDefaultIdentity<IdentityUser>()
+    .AddEntityFrameworkStores<PieShopDbContext>();
+
 var app = builder.Build();
 app.UseStaticFiles();
 app.UseSession();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
